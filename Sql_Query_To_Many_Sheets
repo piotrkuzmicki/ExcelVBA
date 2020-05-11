@@ -1,0 +1,79 @@
+Sub Summary()
+
+
+Application.ScreenUpdating = False
+Application.DisplayAlerts = False
+
+Dim z As Byte
+Dim sht As Variant
+Dim structure As Range
+Dim ListSh As Range
+Dim Namesheet As String
+Dim Question As String
+z = 3
+
+
+'Question = Range("U" & z).Value
+
+With Worksheets("Main")
+Set ListSh = .Range("A1:A" & .Cells(.Rows.Count, "A").End(xlUp).Row)
+End With
+
+For Each sht In ListSh
+Namesheet = Sheets("Main").Range("A" & z).Value
+Sheets(Namesheet).Select
+
+On Error GoTo ProcError
+
+'Range("a1:ao10000").Clear
+ccc = Format("a1:ao10000", "General Number")
+    
+        'Set BBB = ActiveSheet
+        Set ccc = Sheets(Namesheet)
+        Set BBB = Sheets("Main")
+        Set AAA = CreateObject("ADODB.Recordset")
+        
+        AAA.Open _
+        BBB.Range("A1").Value, _
+        BBB.Range("C" & z).Value, _
+         2, 4
+        AAA.UpdateBatch
+            
+             For i = 0 To AAA.Fields.Count - 1
+               Cells( _
+               BBB.Range("a1").Row, _
+               BBB.Range("a1").Column + i).Value = _
+               AAA.Fields(i).Name
+             Next i
+        
+        ccc.Range("a1").Offset(1, 0).CopyFromRecordset _
+     AAA
+    
+    AAA.Close
+        
+    GoTo EndLabel
+    
+ErrorLabel:
+    MsgBox Err.Description, vbCritical, "Error"
+EndLabel:
+    Set BBB = Nothing
+    Set AAA = Nothing
+    
+    Columns("A:AA").EntireColumn.AutoFit
+    
+    
+    z = z + 1
+    
+    Application.Wait (Now + TimeValue("00:00:03"))
+    
+    Next sht
+    
+ProcError:
+'MsgBox Err.Description, vbCritical, "Error"
+Sheets("Main").Select
+    Exit Sub
+    
+Application.ScreenUpdating = True
+Application.DisplayAlerts = True
+    
+End Sub
