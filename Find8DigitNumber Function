@@ -1,0 +1,7 @@
+Function EightDigitNo(s As String)
+'https://www.mrexcel.com/board/threads/extract-a-5-digit-number-from-inconsistent-text-strings.577201/
+With CreateObject("vbscript.regexp")
+  .Pattern = "\d{8}"
+  If .test(s) Then EightDigitNo = .Execute(s)(0)
+End With
+End Function
