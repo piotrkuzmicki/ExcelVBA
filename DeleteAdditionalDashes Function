@@ -1,0 +1,9 @@
+Function DeleteAdditionalDashes(strIn As String) As String
+    Dim objRegex
+    Set objRegex = CreateObject("vbscript.regexp")
+    With objRegex
+     .Global = True
+     .Pattern = "(-{2})+"
+    DeleteAdditionalDashes = .Replace(strIn, "-")
+    End With
+End Function
