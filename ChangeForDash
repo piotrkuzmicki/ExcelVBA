@@ -1,0 +1,11 @@
+Function ChangeDash(strIn As String) As String
+    Dim objRegex
+    Set objRegex = CreateObject("vbscript.regexp")
+    With objRegex
+     .Global = True
+     '.Pattern = "/[^a-zA-Z0-9\s]/gi"
+     .Pattern = "[^a-zA-Z0-9:.]"
+     '.Pattern = "[^\d]+"
+    ChangeDash = .Replace(strIn, "-")
+   End With
+End Function
