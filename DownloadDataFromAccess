@@ -1,0 +1,23 @@
+Sub DownloadDataFromAccess()
+Const cstrPath As String = "C:\DownloadDataFromAccess.accdb"
+Const cstrQuery As String = "data_query" 'name of query from access datebase
+Dim dbe As Object 'DAO.DBEngine '
+Dim rs As Object 'DAO.Recordset '
+Dim ws As Worksheet
+
+Worksheets("Data").Range("A8:AX500100").Clear
+
+
+Application.DisplayAlerts = True 'leave alerts on during testing '
+Set dbe = CreateObject("DAO.DBEngine.120")
+Set rs = dbe.OpenDatabase(cstrPath).OpenRecordset(cstrQuery)
+
+If Not rs.EOF Then
+    Set ws = ThisWorkbook.Sheets("Data")
+    ws.Range("A8").CopyFromRecordset rs
+End If
+
+rs.Close
+Application.DisplayAlerts = True
+
+End Sub
