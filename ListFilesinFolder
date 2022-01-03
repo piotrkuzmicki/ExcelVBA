@@ -1,0 +1,53 @@
+Sub ListFilesinFolder()
+    Dim fso As Scripting.FileSystemObject
+    Dim ws As Worksheet
+    Dim cl As Range
+    Dim SourceFolderName As String
+    
+        Dim strUser As String
+
+    strUser = Environ("USERNAME")
+  
+    SourceFolderName = "C:\Data"
+    
+    Range("A10:B2000").Clear
+    
+    Set fso = New Scripting.FileSystemObject
+
+    Set ws = Worksheets("START")
+
+    'ws.Range("A10:B10") = Array("Name", "Path")
+    Set cl = ws.Cells(2, 1)
+
+    ListFolders cl, fso.GetFolder(SourceFolderName)
+
+    Set fso = Nothing
+    
+    
+    
+    Sub ListFolders(rng As Range, Fol As Scripting.Folder)
+    Dim SubFol  As Scripting.Folder
+    Dim FileItem As Scripting.File
+    Dim strUser As String
+
+    strUser = Environ("USERNAME")
+  
+    ' List Files
+    
+    For Each FileItem In Fol.Files
+    On Error Resume Next
+        If InStr(FileItem.Name, strUser) <> 0 Then
+            rng.Cells(10, 1) = FileItem.Name
+            rng.Cells(10, 2) = FileItem.ParentFolder.Path
+
+            Set rng = rng.Offset(1, 0)
+        End If
+    Next
+    'On Error GoTo 0
+    ' Proces subfolders
+    For Each SubFol In Fol.SubFolders
+        ListFolders rng, SubFol
+    Next
+    
+  
+End Sub
