@@ -1,0 +1,8 @@
+Function FindPOD(s As String)
+'https://www.mrexcel.com/board/threads/extract-a-5-digit-number-from-inconsistent-text-strings.577201/
+With CreateObject("vbscript.regexp")
+  .IgnoreCase = True
+  .Pattern = "P\d{1}"
+  If .test(s) Then FindPOD = .Execute(s)(0)
+End With
+End Function
