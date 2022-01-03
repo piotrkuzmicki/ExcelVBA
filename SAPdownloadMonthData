@@ -1,0 +1,128 @@
+Sub DownloadMonthData()
+
+
+Dim strFileName As String
+Dim strFileExists As String
+
+    strFileName = "c:\data\sapinput.txt"
+    strFileExists = Dir(strFileName)
+
+   If strFileExists <> "" Then
+        Kill strFileName
+
+    End If
+
+On Error GoTo Err_NoSAP
+
+If Not IsObject(SAPApp) Then
+   Set SapGuiAuto = GetObject("SAPGUI") 'Get the SAP GUI Scripting object
+   Set SAPApp = SapGuiAuto.GetScriptingEngine 'Get the currently running SAP GUI
+End If
+If Not IsObject(SAPCon) Then
+    Set SAPCon = SAPApp.Children(0) 'Get the first system that is currently connected
+   'Set connection = SAPGuiApp.Children(0)
+End If
+If Not IsObject(SAP_session) Then
+    Set SAP_session = SAPCon.Children(0) 'Get the first session (window) on that connection
+   'Set session = connection.Children(0)
+End If
+If Not IsObject(SAP_session) Then
+   Set SAP_session = connection.Children(0)
+End If
+If IsObject(WScript) Then
+   WScript.ConnectObject SAP_session, "on"
+   WScript.ConnectObject Application, "on"
+End If
+
+'Set SapGuiAuto = GetObject("SAPGUI") 'Get the SAP GUI Scripting object
+'Set SAPApp = SapGuiAuto.GetScriptingEngine 'Get the currently running SAP GUI
+'Set SAPCon = SAPApp.Children(0) 'Get the first system that is currently connected
+'Set session = SAPCon.Children(0) 'Get the first session (window) on that connection
+
+If (SAPApp.Children.Count > 1) Then GoTo Err_TooManySAP
+
+
+
+Set aw = SAP_session.ActiveWindow()
+aw.findById("wnd[0]").maximize
+
+'On Error GoTo Err_Description
+
+Application.DisplayAlerts = False
+
+'Main menu
+SAP_session.findById("wnd[0]").maximize
+SAP_session.findById("wnd[0]/tbar[0]/okcd").Text = "/N"
+SAP_session.findById("wnd[0]/tbar[0]/btn[0]").press 'Accept
+
+'TRANSACTION Y_DFI_30000012
+SAP_session.findById("wnd[0]").maximize
+SAP_session.findById("wnd[0]/tbar[0]/okcd").Text = "Y_DFI_30000012"
+SAP_session.findById("wnd[0]").sendVKey 0 'ACcept Enter
+'Valuta
+SAP_session.findById("wnd[0]/usr/ctxt%PCURR").Text = "PLN"
+'Bases
+SAP_session.findById("wnd[0]/usr/ctxtBR_BUKRS-LOW").Text = "1"
+SAP_session.findById("wnd[0]/usr/ctxt%PCURR").SetFocus
+SAP_session.findById("wnd[0]/usr/ctxt%PCURR").caretPosition = 3
+'Choice
+SAP_session.findById("wnd[0]/usr/btn%_BR_BUKRS_%_APP_%-VALU_PUSH").press
+SAP_session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL-SLOW_I[1,1]").Text = "2"
+SAP_session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL-SLOW_I[1,2]").Text = "3"
+SAP_session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL-SLOW_I[1,3]").Text = "4"
+SAP_session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL-SLOW_I[1,4]").Text = "5"
+SAP_session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL-SLOW_I[1,5]").Text = "6"
+SAP_session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL-SLOW_I[1,6]").Text = "7"
+SAP_session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL-SLOW_I[1,6]").SetFocus
+SAP_session.findById("wnd[1]/usr/tabsTAB_STRIP/tabpSIVA/ssubSCREEN_HEADER:SAPLALDB:3010/tblSAPLALDBSINGLE/ctxtRSCSEL-SLOW_I[1,6]").caretPosition = 4
+SAP_session.findById("wnd[1]/tbar[0]/btn[8]").press
+'Year
+SAP_session.findById("wnd[0]/usr/txtSP$00007-LOW").Text = Right(Range("D4"), 4)
+'From
+SAP_session.findById("wnd[0]/usr/ctxtSP$00010-LOW").Text = Sheets("Sheet1").Range("C4").Value
+'To
+SAP_session.findById("wnd[0]/usr/ctxtSP$00010-HIGH").Text = Sheets("Sheet1").Range("D4").Value
+SAP_session.findById("wnd[0]/usr/ctxtSP$00010-HIGH").SetFocus
+SAP_session.findById("wnd[0]/usr/ctxtSP$00010-HIGH").caretPosition = 10
+'Enter
+SAP_session.findById("wnd[0]").sendVKey 8
+'Archive
+SAP_session.findById("wnd[0]").sendVKey 9
+'With Headers
+SAP_session.findById("wnd[1]/usr/chkRSAQDOWN-COLUMN").Selected = True
+'Path
+SAP_session.findById("wnd[1]/usr/ctxtRLGRAP-FILENAME").Text = strFileName
+SAP_session.findById("wnd[1]/usr/chkRSAQDOWN-COLUMN").SetFocus
+SAP_session.findById("wnd[1]").sendVKey 0
+
+
+Application.DisplayAlerts = True
+
+MsgBox "Done"
+
+
+
+Exit Sub
+
+Err_Description:
+    MsgBox ("The program has generated an error;" & Chr(13) & _
+    "the reason for this error is unknown."), vbInformation, _
+    "For Information..."
+        Exit Sub
+
+Err_NoSAP:
+MsgBox ("You don't have SAP open or " & Chr(13) & _
+"scripting has been disabled."), vbInformation, _
+"For Information..."
+        Exit Sub
+
+Err_TooManySAP:
+MsgBox ("You must only have one SAP session open. " & Chr(13) & _
+        "Please close all other open SAP sessions."), vbInformation, _
+        "For Information..."
+         Exit Sub
+
+
+
+
+End Sub
